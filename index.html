@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>بازگشت OAuth | هماهنگ</title>
+  <style>
+    body{font-family:Tahoma,Arial,sans-serif;max-width:720px;margin:32px auto;padding:0 16px;line-height:1.8}
+    code,pre{background:#f6f8fa;padding:2px 6px;border-radius:6px;direction:ltr}
+    .ok{color:#0a7}
+    .err{color:#c00}
+    .box{border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin:16px 0}
+    button{padding:8px 12px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer}
+  </style>
+</head>
+<body>
+  <h1>📎 نتیجه بازگشت OAuth (دیوار)</h1>
+  <div class="box">
+    <p>اگر اجازه صادر شده باشد، باید پارامتر <code>code</code> اینجـا بیاد.</p>
+    <p><strong>state:</strong> <span id="state">—</span></p>
+    <p><strong>code:</strong> <span id="code">—</span></p>
+    <p class="err"><strong>error:</strong> <span id="error">—</span></p>
+    <p class="err"><strong>error_description:</strong> <span id="error_description">—</span></p>
+    <p><button id="copyBtn">کپی code</button></p>
+  </div>
+
+  <div class="box">
+    <h3>راهنما</h3>
+    <ul>
+      <li>اگر <code>code</code> دیدی، یعنی اجازه صادر شده؛ همونو برای تبادل توکن استفاده می‌کنیم.</li>
+      <li>اگر خطای <code>invalid_scope</code> دیدی، فعلاً مقدار <code>scope</code> رو از لینک احراز حذف کن یا یک اسکوپ حداقلی مثل <code>USER_RETRIEVE</code> بذار.</li>
+      <li>این صفحه فقط نمایش و دیباگ هست؛ هیچ کلید محرمانه‌ای اینجا نذار.</li>
+    </ul>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      const set = (id, val) => document.getElementById(id).textContent = val || '—';
+
+      const state = params.get('state');
+      const code = params.get('code');
+      const error = params.get('error');
+      const error_description = params.get('error_description');
+
+      set('state', state);
+      set('code', code);
+      set('error', error);
+      set('error_description', error_description);
+
+      document.getElementById('copyBtn').addEventListener('click', () => {
+        if (!code) return alert('کدی برای کپی وجود ندارد.');
+        navigator.clipboard.writeText(code).then(() => alert('کپی شد!'));
+      });
+    })();
+  </script>
+</body>
+</html>
