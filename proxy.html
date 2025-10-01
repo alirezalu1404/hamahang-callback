@@ -1,1 +1,116 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hamahang Proxy Tester</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans Arabic", Tahoma, Arial; margin: 24px; background:#f7f7f7; }
+    .card { background:#fff; border-radius:16px; padding:20px; box-shadow:0 8px 24px rgba(0,0,0,0.08); max-width:820px; margin:auto; }
+    h1 { font-size:20px; margin-top:0; }
+    label { font-weight:600; display:block; margin:12px 0 6px; }
+    input, select, textarea { width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:10px; font-size:14px; }
+    button { padding:10px 16px; border:0; border-radius:10px; background:#0ea5e9; color:#fff; font-weight:700; cursor:pointer; }
+    button:hover{ background:#0284c7; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    pre { background:#0b1020; color:#d1e7ff; padding:16px; border-radius:12px; overflow:auto; max-height:420px; }
+    small.muted { color:#666; }
+    .warn { background:#fff7ed; border:1px solid #fdba74; color:#9a3412; padding:10px 12px; border-radius:8px; margin:12px 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Hamahang — تست ارتباط مستقیم به API کنار دیوار</h1>
+
+    <div class="warn">
+      ⚠️ فقط برای تست: توکن را موقت وارد کنید. این صفحه عمومی است (GitHub Pages).
+      برای محصول نهایی هرگز توکن/کلید را در فرانت‌اند قرار ندهید.
+    </div>
+
+    <label>Access Token (Bearer)</label>
+    <input id="token" type="text" placeholder="ory_at_..." />
+
+    <div class="row">
+      <div>
+        <label>Endpoint</label>
+        <select id="endpoint">
+          <!-- اندپوینت‌های رایج تست در کنار (ممکن است CORS مسدود کند) -->
+          <option value="https://kenar.divar.dev/oauth/get_user">/oauth/get_user (GET)</option>
+          <option value="https://kenar.divar.dev/post/get_user_posts">/post/get_user_posts (GET)</option>
+          <option value="https://kenar.divar.dev/post/get_post">/post/get_post (GET نیاز به post_id)</option>
+        </select>
+      </div>
+      <div>
+        <label>Query Params (اختیاری)</label>
+        <input id="qparams" type="text" placeholder="مثال: ?post_id=1234567890" />
+      </div>
+    </div>
+
+    <label>هدرهای ارسالی</label>
+    <textarea id="headers" rows="4" spellcheck="false">{}</textarea>
+    <small class="muted">به‌طور پیش‌فرض هدر <code>Authorization: Bearer &lt;token&gt;</code> افزوده می‌شود.</small>
+
+    <div style="margin-top:14px;">
+      <button id="send">ارسال درخواست</button>
+    </div>
+
+    <label style="margin-top:16px;">نتیجه</label>
+    <pre id="out">—</pre>
+
+    <small class="muted">
+      نکته: اگر خطای CORS یا getaddrinfo دیدید، یعنی مرورگر شما اجازهٔ اتصال مستقیم به دامنهٔ مقصد را ندارد (محدودیت شبکه/VPN/فایروال).
+    </small>
+  </div>
+
+  <script>
+    function show(obj) {
+      const out = document.getElementById('out');
+      try {
+        out.textContent = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
+      } catch(e) {
+        out.textContent = String(obj);
+      }
+    }
+
+    document.getElementById('send').addEventListener('click', async () => {
+      const token = document.getElementById('token').value.trim();
+      const endpoint = document.getElementById('endpoint').value;
+      const qparams = document.getElementById('qparams').value.trim();
+      let extraHeaders = {};
+      try {
+        const raw = document.getElementById('headers').value.trim();
+        extraHeaders = raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        return show({ error: 'JSON نامعتبر در هدرهای سفارشی', details: String(e) });
+      }
+
+      if (!token) {
+        return show({ error: 'توکن الزامی است.' });
+      }
+
+      const url = endpoint + (qparams || '');
+      const headers = Object.assign({
+        'Authorization': `Bearer ${token}`
+      }, extraHeaders);
+
+      show({ info: 'در حال ارسال...', url, headers });
+
+      try {
+        const res = await fetch(url, { method: 'GET', headers });
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          const data = await res.json();
+          show({ status: res.status, ok: res.ok, data });
+        } else {
+          const text = await res.text();
+          show({ status: res.status, ok: res.ok, text: text.slice(0, 5000) });
+        }
+      } catch (err) {
+        // خطاهای شبکه/CORS/DNS
+        show({ network_error: String(err) });
+      }
+    });
+  </script>
+</body>
+</html>
 
