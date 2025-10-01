@@ -17,18 +17,11 @@
 <body>
   <h1>📎 نتیجه بازگشت OAuth (دیوار)</h1>
 
-  <!-- 🔹 دکمه ورود -->
   <div class="box">
     <p>برای ورود با دیوار، روی دکمه زیر کلیک کنید:</p>
-    <a class="btn" href="https://oauth.divar.ir/oauth2/auth?response_type=code
-&client_id=bloom-pine-jester
-&redirect_uri=https://alirezalu1404.github.io/hamahang-callback/index.html
-&state=mysecurestate12345">
-      ورود با دیوار
-    </a>
+    <a id="loginBtn" class="btn">ورود با دیوار</a>
   </div>
 
-  <!-- 🔹 نتیجه بازگشت -->
   <div class="box">
     <p>اگر اجازه صادر شده باشد، باید پارامتر <code>code</code> اینجـا بیاد.</p>
     <p><strong>state:</strong> <span id="state">—</span></p>
@@ -38,35 +31,28 @@
     <p><button id="copyBtn">کپی code</button></p>
   </div>
 
-  <div class="box">
-    <h3>راهنما</h3>
-    <ul>
-      <li>اگر <code>code</code> دیدی، یعنی اجازه صادر شده؛ همونو برای تبادل توکن استفاده می‌کنیم.</li>
-      <li>اگر خطای <code>invalid_scope</code> دیدی، فعلاً مقدار <code>scope</code> رو از لینک احراز حذف کن یا یک اسکوپ حداقلی بذار.</li>
-      <li>این صفحه فقط نمایش و دیباگ هست؛ هیچ کلید محرمانه‌ای اینجا نذار.</li>
-    </ul>
-  </div>
-
   <script>
-    (function () {
-      const params = new URLSearchParams(location.search);
-      const set = (id, val) => document.getElementById(id).textContent = val || '—';
-
-      const state = params.get('state');
-      const code = params.get('code');
-      const error = params.get('error');
-      const error_description = params.get('error_description');
-
-      set('state', state);
-      set('code', code);
-      set('error', error);
-      set('error_description', error_description);
-
-      document.getElementById('copyBtn').addEventListener('click', () => {
-        if (!code) return alert('کدی برای کپی وجود ندارد.');
-        navigator.clipboard.writeText(code).then(() => alert('کپی شد!'));
-      });
-    })();
+    const params = new URLSearchParams(location.search);
+    const set = (id, val) => document.getElementById(id).textContent = val || '—';
+    const state = params.get('state');
+    const code = params.get('code');
+    const error = params.get('error');
+    const error_description = params.get('error_description');
+    set('state', state);
+    set('code', code);
+    set('error', error);
+    set('error_description', error_description);
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      if (!code) return alert('کدی برای کپی وجود ندارد.');
+      navigator.clipboard.writeText(code).then(() => alert('کپی شد!'));
+    });
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const stateValue = Math.random().toString(36).substring(2,15);
+      const clientId = '{{CLIENT_ID}}';
+      const redirectUri = '{{REDIRECT_URI}}';
+      const url = `https://oauth.divar.ir/oauth2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${stateValue}`;
+      window.location.href = url;
+    });
   </script>
 </body>
 </html>
