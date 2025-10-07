@@ -1,0 +1,14 @@
+{
+  "settings": {
+    "fetch_interval_minutes": 15
+  },
+  "users": [
+    {
+      "username": "owner",
+      "notify_interval_minutes": 60,
+      "bookmarks": [
+        "https://divar.ir/s/tehran/buy-apartment"
+      ]
+    }
+  ]
+}
