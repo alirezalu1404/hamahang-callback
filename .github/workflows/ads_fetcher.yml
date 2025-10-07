@@ -1,0 +1,22 @@
+name: Hamahang Fetch Ads
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"  # هر 15 دقیقه
+  workflow_dispatch:       # اجرا به‌صورت دستی هم ممکن است
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Run Hamahang Ads Fetcher
+        run: |
+          python ads_fetcher.py
