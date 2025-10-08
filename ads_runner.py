@@ -1,56 +1,61 @@
-import json
 import requests
+import json
 from datetime import datetime
+import os
 
-# مسیر فایل نشان‌ها (بوکمارک‌های کاربران)
-BOOKMARK_FILE = "data/user_bookmarks.json"
-OUTPUT_FILE = "data/ads_latest.json"
+BOOKMARK_FILE = "data/user_bookmarks.json"   # محل ذخیره آدرس نشان کاربران
+OUTPUT_FILE = "ads_latest.json"              # خروجی نهایی
 
-def fetch_ads(bookmark_url):
-    """گرفتن آگهی‌ها از نشان کاربر"""
+def fetch_ads(url):
+    """دریافت لیست آگهی‌ها از آدرس نشان"""
     try:
-        response = requests.get(bookmark_url, timeout=15)
-        if response.status_code == 200:
-            # فقط لینک‌های آگهی را نگه می‌داریم
-            data = response.text
-            ads = []
-            for part in data.split('"token"'):
-                if "divar.ir/v/" in part:
-                    start = part.find("https://divar.ir/v/")
-                    end = part.find('"', start)
-                    url = part[start:end]
-                    if url and url not in ads:
-                        ads.append(url)
-            return ads
-        else:
-            print(f"⚠ خطا در دریافت ({response.status_code}) برای {bookmark_url}")
-            return []
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        html = response.text
+
+        # استخراج لینک آگهی‌ها از HTML (با فیلتر divar.ir)
+        ads = []
+        for part in html.split('"'):
+            if part.startswith("https://divar.ir/v/") and part not in ads:
+                ads.append({"url": part, "title": "آگهی جدید"})
+
+        print(f"✅ {len(ads)} آگهی از {url} یافت شد.")
+        return ads
+
     except Exception as e:
-        print(f"❌ خطا در اتصال به {bookmark_url}: {e}")
+        print(f"⚠ خطا در دریافت آگهی‌ها از {url}: {e}")
         return []
 
 def main():
-    """اجرای خودکار برای همه کاربران"""
-    try:
-        with open(BOOKMARK_FILE, "r", encoding="utf-8") as f:
-            bookmarks = json.load(f)
-    except FileNotFoundError:
-        print("⚠ فایل user_bookmarks.json پیدا نشد.")
+    # بررسی وجود فایل نشان‌ها
+    if not os.path.exists(BOOKMARK_FILE):
+        print(f"⚠ فایل {BOOKMARK_FILE} پیدا نشد.")
         return
+
+    # خواندن نشان‌های کاربران
+    with open(BOOKMARK_FILE, "r", encoding="utf-8") as f:
+        bookmarks = json.load(f)
 
     all_results = {}
     for user, data in bookmarks.items():
+        url = data.get("url")
+        if not url:
+            print(f"⚠ برای {user} هیچ URL ثبت نشده است.")
+            continue
+
         print(f"👤 بررسی کاربر: {user}")
-        ads = fetch_ads(data["url"])
+        ads = fetch_ads(url)
         all_results[user] = {
             "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "ads": ads[:10]  # فقط ۱۰ لینک اول ذخیره می‌شود
+            "ads": ads[:10]  # فقط ۱۰ آگهی اول ذخیره می‌شود
         }
 
-    # ذخیره خروجی
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as out:
+    # ذخیره خروجی در مسیر اصلی ریپازیتوری
+    output_path = os.path.join(os.getcwd(), OUTPUT_FILE)
+    with open(output_path, "w", encoding="utf-8") as out:
         json.dump(all_results, out, ensure_ascii=False, indent=2)
-    print("✅ بررسی انجام شد و خروجی در ads_latest.json ذخیره گردید.")
+
+    print(f"✅ بررسی انجام شد و خروجی در {output_path} ذخیره گردید.")
 
 if __name__ == "__main__":
     main()
