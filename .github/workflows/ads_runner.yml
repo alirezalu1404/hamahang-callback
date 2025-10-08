@@ -24,11 +24,18 @@ jobs:
 
       - name: Run Hamahang Ads Runner
         run: |
+          cd ${{ github.workspace }}
           python ads_runner.py
 
       - name: Run Hamahang Notifier
         run: |
+          cd ${{ github.workspace }}
           python notifier.py
+
+      - name: Check notification file exists
+        run: |
+          cd ${{ github.workspace }}
+          ls -l notification_message.txt || echo "⚠ فایل پیدا نشد"
 
       - name: Upload notification result
         uses: actions/upload-artifact@v4
