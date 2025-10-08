@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: "*/15 * * * *"  # اجرای خودکار هر 15 دقیقه
   workflow_dispatch:        # امکان اجرای دستی
+  
 jobs:
   run:
     runs-on: ubuntu-latest
