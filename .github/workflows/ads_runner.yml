@@ -34,4 +34,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: notifications
-          path: notification_message.txt
+          path: ${{ github.workspace }}/notification_message.txt
