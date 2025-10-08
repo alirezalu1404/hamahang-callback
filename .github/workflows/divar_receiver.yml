@@ -1,11 +1,12 @@
 name: Hamahang Divar Receiver
 
 on:
-  workflow_dispatch:    # اجرا به صورت دستی یا از طریق API (event-based)
+  workflow_dispatch:   # اجرای دستی یا از طریق API (event-based)
 
 jobs:
   receive:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
