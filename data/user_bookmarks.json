@@ -1,5 +1,10 @@
 {
   "user1": {
-    "url": "https://divar.ir/s/tehran/buy-apartment/zafar?districts=74%2C86"
+    "url": "https://divar.ir/s/tehran/buy-apartment/zafar?districts=74%2C86",
+    "notify_interval": 1
+  },
+  "user2": {
+    "url": "https://divar.ir/s/tehran/buy-apartment/niavaran",
+    "notify_interval": 180
   }
 }
