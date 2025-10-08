@@ -20,14 +20,18 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests
+          pip install requests jdatetime
 
       - name: Run Hamahang Ads Runner
         run: |
           python ads_runner.py
 
-      - name: Upload ads result
+      - name: Run Hamahang Notifier
+        run: |
+          python notifier.py
+
+      - name: Upload notification result
         uses: actions/upload-artifact@v4
         with:
-          name: ads-latest
-          path: ads_latest.json
+          name: notifications
+          path: notification_message.txt
