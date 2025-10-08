@@ -1,15 +1,15 @@
 name: Hamahang Auto Notify
 
 on:
+  workflow_dispatch:              # اجرای دستی مجاز
   workflow_run:
     workflows: ["Hamahang Auto Runner"]   # اجرا بعد از Runner
-    types:
-      - completed
+    types: [completed]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,19 +24,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install jdatetime requests
 
-      # ⬇ دانلود خروجی Runner (ads_latest.json)
-      - name: Download Runner Artifact
+      # تلاش برای دانلود artifact قبلی (از Runner)
+      - name: Try to download Runner Artifact
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: ads-latest
           path: ./
 
-      # ⬇ اجرای اسکریپت تولید پیام
+      # ساخت فایل موقت در صورت نبود فایل اصلی
+      - name: Create dummy ads_latest.json if missing
+        run: |
+          if [ ! -f "ads_latest.json" ]; then
+            echo '{"user1": {"ads": [{"title": "آگهی تستی", "url": "https://divar.ir/v/sample"}]}}' > ads_latest.json
+            echo "⚠ فایل ads_latest.json وجود نداشت، نسخه‌ی موقت ساخته شد."
+          fi
+
       - name: Run Hamahang Notifier
         run: |
           python notifier.py
 
-      # ⬆ آپلود فایل نهایی پیام
       - name: Upload Notification Output
         uses: actions/upload-artifact@v4
         with:
