@@ -1,0 +1,35 @@
+name: Hamahang Auto Notify
+
+on:
+  workflow_run:
+    workflows: ["Hamahang Auto Runner"]   # اجرا بعد از Runner
+    types:
+      - completed
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install jdatetime
+
+      - name: Run Hamahang Notifier
+        run: |
+          python notifier.py
+
+      - name: Upload Notification Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: notification-message
+          path: notification_message.txt
