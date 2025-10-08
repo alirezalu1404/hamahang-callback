@@ -20,25 +20,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests jdatetime
+          pip install requests
 
       - name: Run Hamahang Ads Runner
         run: |
-          cd ${{ github.workspace }}
           python ads_runner.py
 
-      - name: Run Hamahang Notifier
-        run: |
-          cd ${{ github.workspace }}
-          python notifier.py
-
-      - name: Check notification file exists
-        run: |
-          cd ${{ github.workspace }}
-          ls -l notification_message.txt || echo "⚠ فایل پیدا نشد"
-
-      - name: Upload notification result
+      - name: Upload ads result
         uses: actions/upload-artifact@v4
         with:
-          name: notifications
-          path: ${{ github.workspace }}/notification_message.txt
+          name: ads-latest
+          path: ads_latest.json
