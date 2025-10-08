@@ -1,0 +1,26 @@
+name: Hamahang Divar Receiver
+
+on:
+  workflow_dispatch:    # اجرا به صورت دستی یا از طریق API (event-based)
+
+jobs:
+  receive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Run Divar Receiver
+        run: |
+          python divar_receiver.py
+
+      - name: Upload updated bookmarks
+        uses: actions/upload-artifact@v4
+        with:
+          name: updated-user-bookmarks
+          path: data/user_bookmarks.json
