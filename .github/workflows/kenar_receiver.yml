@@ -1,0 +1,33 @@
+name: Hamahang Divar Receiver (Event-Based)
+
+# این بخش فقط وقتی اجرا می‌شود که از طرف Kenar پیام جدید برسد
+on:
+  repository_dispatch:
+    types: [kenar_message_created]
+
+jobs:
+  receive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Run Hamahang Divar Receiver
+        run: |
+          python kenar_receiver.py
+
+      - name: Upload updated user bookmarks
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-bookmarks
+          path: data/user_bookmarks.json
