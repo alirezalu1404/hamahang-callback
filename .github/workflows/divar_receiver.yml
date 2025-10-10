@@ -1,12 +1,12 @@
-name: Hamahang Divar Receiver
+name: Hamahang Divar Receiver (Event-Based)
 
 on:
-  workflow_dispatch:   # اجرای دستی یا از طریق API (event-based)
+  repository_dispatch:
+    types: [kenar_message_created]
 
 jobs:
   receive:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -16,12 +16,16 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Run Divar Receiver
+      - name: Install dependencies
         run: |
-          python divar_receiver.py
+          python -m pip install --upgrade pip
 
-      - name: Upload updated bookmarks
+      - name: Run Hamahang Divar Receiver
+        run: |
+          python kenar_receiver.py
+
+      - name: Upload updated user bookmarks
         uses: actions/upload-artifact@v4
         with:
-          name: updated-user-bookmarks
+          name: user-bookmarks
           path: data/user_bookmarks.json
