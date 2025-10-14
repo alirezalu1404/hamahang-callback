@@ -55,7 +55,7 @@
       const stateValue = "mysecurestate12345";
       const clientId = "bloom-pine-jester";
       const redirectUri = "https://alirezalu1404.github.io/hamahang-callback/index.html";
-      const scopes = "USER_RETRIEVE GET_POST";
+      const scopes = "USER_RETRIEVE";
       // 🚀 مسیر صحیح احراز دیوار
       const url = `https://oauth.divar.ir/oauth2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}&state=${stateValue}`;
       window.location.href = url;
