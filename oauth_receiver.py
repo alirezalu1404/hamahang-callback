@@ -6,9 +6,9 @@ import os
 
 app = Flask(__name__)
 
-# ⚙️ اطلاعات مربوط به اپلیکیشن شما در کنار دیوار
-CLIENT_ID = "bloom-pine-jester"   # همان slug یا شناسهٔ اپلیکیشن در کنار دیوار
-CLIENT_SECRET = "🔒 اینجا کلید محرمانه OAuth را وارد کن"
+# ⚙️ اطلاعات اپلیکیشن در کنار دیوار
+CLIENT_ID = "bloom-pine-jester"   # شناسه اپلیکیشن (slug)
+CLIENT_SECRET = os.getenv("DIVAR_CLIENT_SECRET")  # خواندن از GitHub Secret
 REDIRECT_URI = "https://alirezalu1404.github.io/hamahang-callback/index.html"
 
 TOKEN_FILE = "data/divar_token.json"
@@ -21,7 +21,7 @@ def oauth_callback():
     if not code:
         return jsonify({"error": "Missing authorization code"}), 400
 
-    # مرحله تبادل code با access_token
+    # 🎯 تبادل code با access_token
     token_url = "https://api.divar.ir/oauth/token"
     payload = {
         "client_id": CLIENT_ID,
@@ -37,6 +37,7 @@ def oauth_callback():
     if response.status_code == 200:
         token_data = response.json()
 
+        # ذخیره توکن در پوشه data
         os.makedirs("data", exist_ok=True)
         with open(TOKEN_FILE, "w", encoding="utf-8") as f:
             json.dump(token_data, f, indent=2, ensure_ascii=False)
