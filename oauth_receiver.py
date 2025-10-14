@@ -1,20 +1,30 @@
-# oauth_receiver.py (auto-mode)
+# oauth_receiver.py
+from flask import Flask, request, jsonify
 import requests
 import json
 import os
 
-# تنظیمات اپلیکیشن در کنار دیوار
+app = Flask(__name__)
+
 CLIENT_ID = "bloom-pine-jester"
-CLIENT_SECRET = os.getenv("DIVAR_CLIENT_SECRET")  # خواندن از secret
+CLIENT_SECRET = os.getenv("DIVAR_CLIENT_SECRET")  # خواندن از Secret
 REDIRECT_URI = "https://alirezalu1404.github.io/hamahang-callback/index.html"
 TOKEN_FILE = "data/divar_token.json"
 
-def fetch_token():
+@app.route("/callback")
+def oauth_callback():
+    code = request.args.get("code")
+    state = request.args.get("state")
+
+    if not code:
+        return jsonify({"error": "Missing authorization code"}), 400
+
     token_url = "https://api.divar.ir/oauth/token"
     payload = {
         "client_id": CLIENT_ID,
         "client_secret": CLIENT_SECRET,
-        "grant_type": "client_credentials",
+        "code": code,
+        "grant_type": "authorization_code",
         "redirect_uri": REDIRECT_URI,
     }
 
@@ -26,12 +36,9 @@ def fetch_token():
         os.makedirs("data", exist_ok=True)
         with open(TOKEN_FILE, "w", encoding="utf-8") as f:
             json.dump(token_data, f, indent=2, ensure_ascii=False)
-        print("✅ Token fetched successfully")
-        return token_data
+        return jsonify({"message": "✅ OAuth token received!", "token": token_data})
     else:
-        print("❌ Failed to fetch token:", response.status_code, response.text)
-        return None
-
+        return jsonify({"error": "Failed to get token", "status_code": response.status_code, "response": response.text}), 400
 
 if __name__ == "__main__":
-    fetch_token()
+    app.run(host="0.0.0.0", port=5000)
