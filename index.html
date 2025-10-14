@@ -23,39 +23,6 @@
   </div>
 
   <div class="box">
-    <p>اگر اجازه صادر شده باشد، باید پارامتر <code>code</code> اینجـا بیاد.</p>
+    <p>اگر اجازه صادر شده باشد، باید پارامتر <code>code</code> اینجا بیاید.</p>
     <p><strong>state:</strong> <span id="state">—</span></p>
-    <p><strong>code:</strong> <span id="code">—</span></p>
-    <p class="err"><strong>error:</strong> <span id="error">—</span></p>
-    <p class="err"><strong>error_description:</strong> <span id="error_description">—</span></p>
-    <p><button id="copyBtn">کپی code</button></p>
-  </div>
-
-  <script>
-    const params = new URLSearchParams(location.search);
-    const set = (id, val) => document.getElementById(id).textContent = val || '—';
-    const state = params.get('state');
-    const code = params.get('code');
-    const error = params.get('error');
-    const error_description = params.get('error_description');
-    set('state', state);
-    set('code', code);
-    set('error', error);
-    set('error_description', error_description);
-    document.getElementById('copyBtn').addEventListener('click', () => {
-      if (!code) return alert('کدی برای کپی وجود ندارد.');
-      navigator.clipboard.writeText(code).then(() => alert('کپی شد!'));
-    });
-
-    // 👇 اطلاعات واقعی برنامه شما
-    const CLIENT_ID = 'bloom-pine-jester';
-    const REDIRECT_URI = 'https://alirezalu1404.github.io/hamahang-callback/index.html';
-
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const stateValue = Math.random().toString(36).substring(2, 15);
-      const url = `https://oauth.divar.ir/oauth2/auth?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${stateValue}`;
-      window.location.href = url;
-    });
-  </script>
-</body>
-</html>
+    <p><strong>code:</strong> <span id="code">
