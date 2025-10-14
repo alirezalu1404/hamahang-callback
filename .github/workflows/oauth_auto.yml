@@ -1,0 +1,53 @@
+name: Hamahang OAuth Auto Fetch
+on:
+  workflow_dispatch:  # اجرا به صورت دستی از بخش Actions
+
+jobs:
+  get-divar-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Fetch OAuth Token from Divar
+        env:
+          DIVAR_CLIENT_SECRET: ${{ secrets.DIVAR_CLIENT_SECRET }}
+        run: |
+          python <<'PYCODE'
+          import requests, json, os
+          CLIENT_ID = "bloom-pine-jester"
+          CLIENT_SECRET = os.getenv("DIVAR_CLIENT_SECRET")
+          REDIRECT_URI = "https://alirezalu1404.github.io/hamahang-callback/index.html"
+          TOKEN_FILE = "data/divar_token.json"
+
+          token_url = "https://api.divar.ir/oauth/token"
+          payload = {
+              "client_id": CLIENT_ID,
+              "client_secret": CLIENT_SECRET,
+              "grant_type": "client_credentials",
+              "redirect_uri": REDIRECT_URI
+          }
+
+          headers = {"Content-Type": "application/json"}
+          print("🚀 Sending request to Divar OAuth API...")
+          response = requests.post(token_url, json=payload, headers=headers)
+
+          if response.status_code == 200:
+              token_data = response.json()
+              os.makedirs("data", exist_ok=True)
+              with open(TOKEN_FILE, "w", encoding="utf-8") as f:
+                  json.dump(token_data, f, indent=2, ensure_ascii=False)
+              print("✅ Token fetched and saved to", TOKEN_FILE)
+          else:
+              print(f"❌ Failed to fetch token: {response.status_code}")
+              print(response.text)
+          PYCODE
