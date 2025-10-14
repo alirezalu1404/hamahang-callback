@@ -46,11 +46,14 @@
       if (!code) return alert('کدی برای کپی وجود ندارد.');
       navigator.clipboard.writeText(code).then(() => alert('کپی شد!'));
     });
+
+    // 👇 اطلاعات واقعی برنامه شما
+    const CLIENT_ID = 'bloom-pine-jester';
+    const REDIRECT_URI = 'https://alirezalu1404.github.io/hamahang-callback/index.html';
+
     document.getElementById('loginBtn').addEventListener('click', () => {
-      const stateValue = Math.random().toString(36).substring(2,15);
-      const clientId = '{{CLIENT_ID}}';
-      const redirectUri = '{{REDIRECT_URI}}';
-      const url = `https://oauth.divar.ir/oauth2/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${stateValue}`;
+      const stateValue = Math.random().toString(36).substring(2, 15);
+      const url = `https://oauth.divar.ir/oauth2/auth?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${stateValue}`;
       window.location.href = url;
     });
   </script>
