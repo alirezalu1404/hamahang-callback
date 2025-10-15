@@ -1,0 +1,48 @@
+name: Hamahang Virtual Server
+
+on:
+  repository_dispatch:
+    types: [kenar_message_created, oauth_callback, divar_action]
+
+jobs:
+  emulate-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Emulate Divar Response
+        env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
+        run: |
+          import json, os, requests
+
+          event = os.getenv("GITHUB_EVENT_PATH")
+          with open(event, "r") as f:
+              payload = json.load(f)
+          
+          event_type = payload.get("event_type")
+          print(f"⚙️ Event received: {event_type}")
+
+          # شبیه‌سازی پاسخ به درخواست‌های Divar
+          if event_type == "kenar_message_created":
+              print("📩 Message received from Divar.")
+              print("✅ Returning OK status (200).")
+          elif event_type == "oauth_callback":
+              print("🔐 OAuth callback simulated.")
+          elif event_type == "divar_action":
+              print("🚀 Action request received from Divar.")
+          else:
+              print("❓ Unknown event type.")
+          
+          print("✅ Virtual server executed successfully.")
