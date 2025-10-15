@@ -9,6 +9,12 @@ app = Flask(__name__)
 GITHUB_TOKEN = os.environ.get("ACCESS_TOKEN")
 REPO = "alirezalu1404/hamahang-callback"
 
+# ✅ پاسخ به درخواست‌های GET از طرف دیوار (برای تست اولیه)
+@app.route("/", methods=["GET"])
+def test():
+    return jsonify({"status": "ok", "message": "Hamahang Receiver active ✅"}), 200
+
+# ✅ دریافت پیام واقعی از Kenar (رویدادها)
 @app.route("/", methods=["POST"])
 def handle_event():
     """دریافت پیام از Kenar و ارسال آن به GitHub Dispatch"""
