@@ -26,7 +26,7 @@ def save_to_json(links):
         print("⚠️ خطا در ذخیره‌سازی:", e)
 
 if __name__ == "__main__":
-    search_url = input("🔹 لینک نشان کاربر را وارد کنید: ").strip()
+    search_url = input("https://divar.ir/s/tehran/buy-apartment/zafar?districts=74%2C86").strip()
     while True:
         ads = fetch_ads(search_url)
         if ads:
