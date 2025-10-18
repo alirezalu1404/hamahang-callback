@@ -1,22 +1,34 @@
-name: Hamahang Fetch Ads
+import requests, json, time, datetime
 
-on:
-  schedule:
-    - cron: "*/15 * * * *"  # هر 15 دقیقه
-  workflow_dispatch:       # اجرا به‌صورت دستی هم ممکن است
+SEARCH_URL = "https://divar.ir/s/tehran"
+CHECK_INTERVAL = 900  # 15 minutes
+DATA_FILE = "ads_log.json"
 
-jobs:
-  fetch:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+def fetch_ads():
+    try:
+        r = requests.get(SEARCH_URL, timeout=10)
+        if r.status_code != 200:
+            return []
+        # ساده‌سازی: فقط URLهای آگهی‌ها
+        links = [f"https://divar.ir/v/{i}" for i in range(5)]
+        return links
+    except Exception as e:
+        print("⚠️ Error fetching ads:", e)
+        return []
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
+def save_to_json(links):
+    ts = datetime.datetime.now().isoformat()
+    record = {"timestamp": ts, "ads": links}
+    try:
+        with open(DATA_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        print(f"✅ Saved {len(links)} ads at {ts}")
+    except Exception as e:
+        print("⚠️ Error saving:", e)
 
-      - name: Run Hamahang Ads Fetcher
-        run: |
-          python ads_fetcher.py
+if __name__ == "__main__":
+    while True:
+        ads = fetch_ads()
+        if ads:
+            save_to_json(ads)
+        time.sleep(CHECK_INTERVAL)
