@@ -1,10 +1,22 @@
 {
-  "user1": {
-    "url": "https://divar.ir/s/tehran/buy-apartment/zafar?districts=74%2C86",
-    "notify_interval": 1
+  "settings": {
+    "fetch_interval_minutes": 15
   },
-  "user2": {
-    "url": "https://divar.ir/s/tehran/buy-apartment/niavaran",
-    "notify_interval": 180
-  }
+  "users": [
+    {
+      "username": "ali1404",
+      "notify_interval_minutes": 60,
+      "bookmarks": [
+        "https://divar.ir/s/tehran/buy-apartment/zafar?districts=74%2C86",
+        "https://divar.ir/s/tehran/rent-apartment/niavaran"
+      ]
+    },
+    {
+      "username": "mahsa",
+      "notify_interval_minutes": 180,
+      "bookmarks": [
+        "https://divar.ir/s/mashhad/buy-apartment/sajjad"
+      ]
+    }
+  ]
 }
