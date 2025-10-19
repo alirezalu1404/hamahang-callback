@@ -1,56 +1,39 @@
-# oauth_receiver.py
-from flask import Flask, request, jsonify
-import requests
-import json
+from flask import Flask, jsonify, request
 import os
+import requests
 
 app = Flask(__name__)
 
-# ⚙️ اطلاعات از Secrets گیت‌هاب
-CLIENT_ID = "bloom-pine-jester"
-CLIENT_SECRET = os.getenv("DIVAR_CLIENT_SECRET")
-REDIRECT_URI = "https://alirezalu1404.github.io/hamahang-callback/index.html"
-TOKEN_FILE = "data/divar_token.json"
+# 🔐 خواندن کلید از Secrets گیت‌هاب
+DIVAR_SERVICE_TOKEN = os.getenv("DIVAR_SERVICE_TOKEN")
 
-@app.route("/callback", methods=["GET"])
-def oauth_callback():
-    """دریافت code از دیوار و تبادل با access_token"""
-    code = request.args.get("code")
-    state = request.args.get("state")
+@app.route("/")
+def home():
+    return jsonify({
+        "message": "✅ Hamahang Service Connected to Divar",
+        "note": "This app uses Service Token for secure access."
+    })
 
-    if not code:
-        return jsonify({"error": "Missing authorization code"}), 400
-
-    token_url = "https://oauth.divar.ir/oauth2/token"
-    payload = {
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
-        "code": code,
-        "grant_type": "authorization_code",
-        "redirect_uri": REDIRECT_URI,
+@app.route("/test", methods=["GET"])
+def test_connection():
+    """تست ارتباط مستقیم با API دیوار"""
+    url = "https://api.divar.ir/v1/public/search/post"
+    headers = {
+        "Authorization": f"Bearer {DIVAR_SERVICE_TOKEN}",
+        "Content-Type": "application/json"
     }
+    response = requests.post(url, json={"q": "تهران"}, headers=headers)
+    return jsonify({
+        "status_code": response.status_code,
+        "text": response.text
+    })
 
-    headers = {"Content-Type": "application/json"}
-    try:
-        response = requests.post(token_url, json=payload, headers=headers)
-        if response.status_code == 200:
-            token_data = response.json()
-            os.makedirs("data", exist_ok=True)
-            with open(TOKEN_FILE, "w", encoding="utf-8") as f:
-                json.dump(token_data, f, indent=2, ensure_ascii=False)
-            return jsonify({
-                "message": "✅ OAuth access token received successfully!",
-                "token": token_data
-            })
-        else:
-            return jsonify({
-                "error": "Failed to get token",
-                "status_code": response.status_code,
-                "response": response.text
-            }), response.status_code
-    except Exception as e:
-        return jsonify({"error": f"Internal exception: {str(e)}"}), 500
-
+@app.route("/kenar", methods=["POST"])
+def receive_event():
+    """دریافت پیام از Kenar و پاسخ خودکار"""
+    payload = request.get_json()
+    print("📩 دریافت پیام از Kenar:", payload)
+    return jsonify({"received": True, "payload": payload})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
