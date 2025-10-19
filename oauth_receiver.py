@@ -6,13 +6,15 @@ import os
 
 app = Flask(__name__)
 
+# ⚙️ اطلاعات از Secrets گیت‌هاب
 CLIENT_ID = "bloom-pine-jester"
-CLIENT_SECRET = os.getenv("DIVAR_CLIENT_SECRET")  # خواندن از Secret
+CLIENT_SECRET = os.getenv("DIVAR_CLIENT_SECRET")
 REDIRECT_URI = "https://alirezalu1404.github.io/hamahang-callback/index.html"
 TOKEN_FILE = "data/divar_token.json"
 
-@app.route("/callback")
+@app.route("/callback", methods=["GET"])
 def oauth_callback():
+    """دریافت code از دیوار و تبادل با access_token"""
     code = request.args.get("code")
     state = request.args.get("state")
 
@@ -29,16 +31,26 @@ def oauth_callback():
     }
 
     headers = {"Content-Type": "application/json"}
-    response = requests.post(token_url, json=payload, headers=headers)
+    try:
+        response = requests.post(token_url, json=payload, headers=headers)
+        if response.status_code == 200:
+            token_data = response.json()
+            os.makedirs("data", exist_ok=True)
+            with open(TOKEN_FILE, "w", encoding="utf-8") as f:
+                json.dump(token_data, f, indent=2, ensure_ascii=False)
+            return jsonify({
+                "message": "✅ OAuth access token received successfully!",
+                "token": token_data
+            })
+        else:
+            return jsonify({
+                "error": "Failed to get token",
+                "status_code": response.status_code,
+                "response": response.text
+            }), response.status_code
+    except Exception as e:
+        return jsonify({"error": f"Internal exception: {str(e)}"}), 500
 
-    if response.status_code == 200:
-        token_data = response.json()
-        os.makedirs("data", exist_ok=True)
-        with open(TOKEN_FILE, "w", encoding="utf-8") as f:
-            json.dump(token_data, f, indent=2, ensure_ascii=False)
-        return jsonify({"message": "✅ OAuth token received!", "token": token_data})
-    else:
-        return jsonify({"error": "Failed to get token", "status_code": response.status_code, "response": response.text}), 400
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
