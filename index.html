@@ -3,62 +3,34 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>بازگشت OAuth | هماهنگ</title>
+  <title>هماهنگ | اتصال به دیوار</title>
   <style>
-    body{font-family:Tahoma,Arial,sans-serif;max-width:720px;margin:32px auto;padding:0 16px;line-height:1.8}
-    code,pre{background:#f6f8fa;padding:2px 6px;border-radius:6px;direction:ltr}
-    .ok{color:#0a7}
-    .err{color:#c00}
-    .box{border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin:16px 0}
-    button{padding:8px 12px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer}
-    a.btn{display:inline-block;padding:10px 16px;margin-top:10px;border:1px solid #0a7;background:#0a7;color:#fff;text-decoration:none;border-radius:8px}
+    body {font-family:Tahoma,Arial,sans-serif;max-width:720px;margin:32px auto;padding:0 16px;line-height:1.8;}
+    .box {border:1px solid #ddd;border-radius:12px;padding:16px;margin:16px 0;}
+    button {padding:8px 16px;border-radius:8px;border:1px solid #0a7;background:#0a7;color:#fff;cursor:pointer;}
+    pre {background:#f9f9f9;padding:10px;border-radius:8px;}
   </style>
 </head>
 <body>
-  <h1>📎 نتیجه بازگشت OAuth (دیوار)</h1>
-
+  <h1>📡 اتصال هماهنگ به دیوار</h1>
   <div class="box">
-    <p>برای ورود با دیوار، روی دکمه زیر کلیک کنید:</p>
-    <a id="loginBtn" class="btn">ورود با دیوار</a>
+    <p>این نسخه از هماهنگ از <b>Service Token</b> برای ارتباط مستقیم با دیوار استفاده می‌کند و نیازی به ورود کاربر ندارد.</p>
+    <button id="testBtn">تست ارتباط با دیوار</button>
   </div>
-
   <div class="box">
-    <p>اگر اجازه صادر شده باشد، باید پارامتر <code>code</code> اینجا بیاید.</p>
-    <p><strong>state:</strong> <span id="state">—</span></p>
-    <p><strong>code:</strong> <span id="code">—</span></p>
-    <p class="err"><strong>error:</strong> <span id="error">—</span></p>
-    <p class="err"><strong>error_description:</strong> <span id="error_description">—</span></p>
-    <p><button id="copyBtn">کپی code</button></p>
+    <pre id="result">نتیجه در اینجا نمایش داده می‌شود...</pre>
   </div>
 
   <script>
-    // 📥 خواندن پارامترها از URL
-    const params = new URLSearchParams(location.search);
-    const set = (id, val) => document.getElementById(id).textContent = val || '—';
-    const state = params.get('state');
-    const code = params.get('code');
-    const error = params.get('error');
-    const error_description = params.get('error_description');
-    set('state', state);
-    set('code', code);
-    set('error', error);
-    set('error_description', error_description);
-
-    // 📋 دکمه کپی code
-    document.getElementById('copyBtn').addEventListener('click', () => {
-      if (!code) return alert('کدی برای کپی وجود ندارد.');
-      navigator.clipboard.writeText(code).then(() => alert('کپی شد!'));
-    });
-
-    // 🚀 دکمه ورود با دیوار (ساخت لینک امن)
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const stateValue = "mysecurestate12345";
-      const clientId = "bloom-pine-jester";
-      const redirectUri = "https://alirezalu1404.github.io/hamahang-callback/index.html";
-      const scopes = "USER_ADDON_CREATE"; // ✅ تنها اسکوپ مجاز و تایید شده
-
-      const url = `https://oauth.divar.ir/oauth2/auth?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&state=${encodeURIComponent(stateValue)}`;
-      window.location.href = url;
+    document.getElementById("testBtn").addEventListener("click", async () => {
+      document.getElementById("result").textContent = "⏳ در حال ارسال درخواست به سرور...";
+      try {
+        const res = await fetch("https://hamahang-callback.onrender.com/test", { method: "GET" });
+        const data = await res.json();
+        document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById("result").textContent = "❌ خطا در ارتباط: " + err;
+      }
     });
   </script>
 </body>
