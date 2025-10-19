@@ -5,8 +5,13 @@ on:
 jobs:
   accept_any_dispatch:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
     steps:
       - name: Confirm receipt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
         run: |
           echo "✅ Fallback workflow triggered successfully"
           echo "🔹 Even if event_type is missing, return HTTP 204 to Divar."
