@@ -21,7 +21,7 @@ def oauth_callback():
     if not code:
         return jsonify({"error": "Missing authorization code"}), 400
 
-    token_url = "https://api.divar.ir/oauth/token"
+    token_url = "https://oauth.divar.ir/oauth2/token"
     payload = {
         "client_id": CLIENT_ID,
         "client_secret": CLIENT_SECRET,
