@@ -1,97 +1,54 @@
-<!doctype html> 
+<!doctype html>
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hamahang Proxy Tester</title>
+  <title>Hamahang Proxy | Divar Connector</title>
   <style>
-    body { font-family: system-ui, Tahoma, Arial; margin: 24px; background:#f7f7f7; }
-    .card { background:#fff; border-radius:16px; padding:20px; box-shadow:0 8px 24px rgba(0,0,0,0.08); max-width:820px; margin:auto; }
-    h1 { font-size:20px; margin-top:0; }
-    label { font-weight:600; display:block; margin:12px 0 6px; }
-    input, select, textarea { width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:10px; font-size:14px; }
-    button { padding:10px 16px; border:0; border-radius:10px; background:#0ea5e9; color:#fff; font-weight:700; cursor:pointer; }
-    button:hover{ background:#0284c7; }
-    .row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-    pre { background:#0b1020; color:#d1e7ff; padding:16px; border-radius:12px; overflow:auto; max-height:420px; }
-    small.muted { color:#666; }
-    .warn { background:#fff7ed; border:1px solid #fdba74; color:#9a3412; padding:10px 12px; border-radius:8px; margin:12px 0; }
+    body { font-family: Tahoma; max-width: 700px; margin: 40px auto; line-height: 1.8; }
+    pre { background: #f6f8fa; padding: 10px; border-radius: 6px; direction: ltr; }
+    .ok { color: green; }
+    .err { color: red; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Hamahang — تست API</h1>
-
-    <div class="warn">
-      ⚠️ توکن و کلیدها در نسخه نهایی از GitHub Secrets خوانده می‌شوند.
-    </div>
-
-    <label>Access Token</label>
-    <input id="token" type="password" placeholder="ory_at_..." />
-
-    <div class="row">
-      <div>
-        <label>Endpoint</label>
-        <select id="endpoint">
-          <option value="https://kenar.divar.dev/oauth/get_user">/oauth/get_user</option>
-          <option value="https://kenar.divar.dev/post/get_user_posts">/post/get_user_posts</option>
-          <option value="https://kenar.divar.dev/post/get_post">/post/get_post</option>
-        </select>
-      </div>
-      <div>
-        <label>Query Params</label>
-        <input id="qparams" type="text" placeholder="?post_id=1234567890" />
-      </div>
-    </div>
-
-    <label>Headers</label>
-    <textarea id="headers" rows="4" spellcheck="false">{}</textarea>
-    <small class="muted">Authorization به‌طور خودکار اضافه می‌شود.</small>
-
-    <div style="margin-top:14px;">
-      <button id="send">ارسال درخواست</button>
-    </div>
-
-    <label style="margin-top:16px;">نتیجه</label>
-    <pre id="out">—</pre>
-  </div>
+  <h2>🌐 Hamahang Proxy Connector</h2>
+  <p>این صفحه برای ارتباط امن بین <b>دیوار</b> و <b>GitHub Actions</b> طراحی شده است.</p>
+  <pre id="result">Waiting for request...</pre>
 
   <script>
-    function show(obj) {
-      const out = document.getElementById('out');
-      try { out.textContent = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2); }
-      catch(e) { out.textContent = String(obj); }
-    }
-
-    document.getElementById('send').addEventListener('click', async () => {
-      const token = document.getElementById('token').value.trim();
-      const endpoint = document.getElementById('endpoint').value;
-      const qparams = document.getElementById('qparams').value.trim();
-      let extraHeaders = {};
-      try { extraHeaders = JSON.parse(document.getElementById('headers').value.trim() || '{}'); }
-      catch (e) { return show({ error: 'JSON نامعتبر در هدرها' }); }
-
-      if (!token) return show({ error: 'توکن الزامی است.' });
-
-      const url = endpoint + (qparams || '');
-      const headers = Object.assign({ 'Authorization': `Bearer ${token}` }, extraHeaders);
-
-      show({ info: 'در حال ارسال...', url, headers });
+    async function handleRequest() {
+      const query = new URLSearchParams(location.search);
+      const payload = query.get("payload") || "{}";
+      const data = JSON.parse(payload);
+      const eventType = query.get("event") || "kenar_message_created";
+      const token = "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";
 
       try {
-        const res = await fetch(url, { method: 'GET', headers });
-        const ct = res.headers.get('content-type') || '';
-        if (ct.includes('application/json')) {
-          const data = await res.json();
-          show({ status: res.status, ok: res.ok, data });
+        const res = await fetch("https://api.github.com/repos/alirezalu1404/hamahang-callback/dispatches", {
+          method: "POST",
+          headers: {
+            "Accept": "application/vnd.github+json",
+            "Authorization": `token ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            event_type: eventType,
+            client_payload: data
+          })
+        });
+
+        if (res.status === 204) {
+          document.getElementById("result").innerHTML = "✅ درخواست با موفقیت به GitHub ارسال شد.";
         } else {
           const text = await res.text();
-          show({ status: res.status, ok: res.ok, text: text.slice(0, 5000) });
+          document.getElementById("result").innerHTML = "❌ خطا: " + text;
         }
-      } catch (err) {
-        show({ network_error: String(err) });
+      } catch (e) {
+        document.getElementById("result").innerHTML = "⚠️ Exception: " + e.message;
       }
-    });
+    }
+
+    handleRequest();
   </script>
 </body>
 </html>
