@@ -3,46 +3,55 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>هماهنگ | پاسخ به درخواست دیوار</title>
+  <title>Hamahang Actions Endpoint</title>
   <style>
     body {
-      font-family: Tahoma, sans-serif;
-      background: #f9fafb;
+      font-family: Tahoma, Arial, sans-serif;
       max-width: 720px;
-      margin: 40px auto;
-      padding: 20px;
-      text-align: center;
-      color: #333;
+      margin: 32px auto;
+      padding: 0 16px;
+      line-height: 1.8;
     }
-    .ok { color: #008000; }
+    .ok { color: #0a7; }
     .err { color: #c00; }
-    .box {
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 20px;
-      background: #fff;
-      box-shadow: 0 0 8px rgba(0,0,0,0.05);
-      margin-bottom: 24px;
+    pre {
+      background: #f6f8fa;
+      padding: 8px 12px;
+      border-radius: 6px;
+      direction: ltr;
     }
   </style>
 </head>
 <body>
-  <h1>📡 هماهنگ | Divar Actions Receiver</h1>
+  <h1>🛰 Hamahang Actions Connector</h1>
 
-  <div class="box">
-    <p>درخواست از دیوار با موفقیت دریافت شد ✅</p>
-    <p>این صفحه صرفاً برای تأیید پاسخ <code>200 OK</code> نمایش داده می‌شود.</p>
+  <p>این صفحه برای پاسخ‌دهی خودکار به درخواست‌های «دیوار / Kenar» ساخته شده است.</p>
+
+  <div id="result">
+    <p>⏳ در حال دریافت درخواست...</p>
   </div>
 
   <script>
-    // پاسخ موفق برای هر نوع درخواست (GET یا POST)
-    const okResponse = {
-      status: 200,
-      message: "OK",
-      service: "Hamahang Callback",
-      timestamp: new Date().toISOString()
-    };
-    console.log("✅ Response:", okResponse);
+    // اگر دیوار درخواست GET یا POST بفرستد، پاسخ تست برگردانده می‌شود
+    const params = new URLSearchParams(location.search);
+    const test = params.get('test');
+    const output = document.getElementById('result');
+
+    if (test !== null) {
+      output.innerHTML = `
+        <p class="ok">✅ تست موفق بود!</p>
+        <pre>{
+  "status": "ok",
+  "message": "Hamahang Actions endpoint received test successfully."
+}</pre>`;
+    } else {
+      output.innerHTML = `
+        <p class="ok">✅ این endpoint فعال است و آمادهٔ دریافت درخواست از دیوار است.</p>
+        <pre>{
+  "status": "ready",
+  "endpoint": "actions.html"
+}</pre>`;
+    }
   </script>
 </body>
 </html>
